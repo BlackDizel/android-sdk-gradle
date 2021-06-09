@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
-MAINTAINER Alexis Duque  <alexisd@rtone.fr>
+MAINTAINER Alexandr Motorin  <alexandrdevmisc@ya.ru>
 
-ENV VERSION_SDK_TOOLS "3859397"
+ENV VERSION_SDK_TOOLS "7302050"
 
 ENV ANDROID_HOME "/sdk"
 ENV SDK_HOME "/opt"
@@ -25,7 +25,7 @@ RUN apt-get -qq update && \
 RUN rm -f /etc/ssl/certs/java/cacerts; \
     /var/lib/dpkg/info/ca-certificates-java.postinst configure
 
-RUN curl -s https://dl.google.com/android/repository/sdk-tools-linux-${VERSION_SDK_TOOLS}.zip > /sdk.zip && \
+RUN curl -s https://dl.google.com/android/repository/commandlinetools-linux-{VERSION_SDK_TOOLS}_latest.zip > /sdk.zip && \
     unzip /sdk.zip -d /sdk && \
     rm -v /sdk.zip
 
@@ -34,7 +34,7 @@ RUN mkdir -p $ANDROID_HOME/licenses/ \
   && echo "84831b9409646a918e30573bab4c9c91346d8abd" > $ANDROID_HOME/licenses/android-sdk-preview-license
 
 # Gradle
-ENV GRADLE_VERSION 4.0
+ENV GRADLE_VERSION 6.5
 ENV GRADLE_SDK_URL https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip
 RUN curl -sSL "${GRADLE_SDK_URL}" -o gradle-${GRADLE_VERSION}-bin.zip  \
 	&& unzip gradle-${GRADLE_VERSION}-bin.zip -d ${SDK_HOME}  \
