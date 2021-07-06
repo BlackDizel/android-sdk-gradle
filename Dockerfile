@@ -16,9 +16,6 @@ RUN apt-get -qq update && \
       unzip \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# RUN rm -f /etc/ssl/certs/java/cacerts; \
-#    /var/lib/dpkg/info/ca-certificates-java.postinst configure
-
 # Gradle
 ENV SDK_HOME "/opt"
 ENV GRADLE_VERSION 6.5
@@ -34,30 +31,23 @@ ENV PATH ${GRADLE_HOME}/bin:$PATH
 
 ENV VERSION_SDK_TOOLS "7302050"
 
-ENV ANDROID_SDK_ROOT "/sdk/cmdline-tools"
-ENV ANDROID_HOME "${ANDROID_SDK_ROOT}/latest"
+ENV ANDROID_SDK_ROOT "/sdk"
 
+ENV PATH "$PATH:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/"
 
-ENV PATH "$PATH:${ANDROID_SDK_ROOT}/cmdline-tools/latest"
-
-RUN mkdir -p ${ANDROID_SDK_ROOT} && \
+RUN mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools && \
     curl -s https://dl.google.com/android/repository/commandlinetools-linux-${VERSION_SDK_TOOLS}_latest.zip > /sdk.zip && \
-    unzip /sdk.zip -d ${ANDROID_SDK_ROOT} && \
-    mv ${ANDROID_SDK_ROOT}/cmdline-tools ${ANDROID_SDK_ROOT}/latest && \
+    unzip /sdk.zip -d ${ANDROID_SDK_ROOT}/cmdline-tools && \
+    mv ${ANDROID_SDK_ROOT}/cmdline-tools/cmdline-tools ${ANDROID_SDK_ROOT}/cmdline-tools/latest && \
     rm -v /sdk.zip
-
-# RUN mkdir -p ${ANDROID_SDK_ROOT}/licenses/ \
-#  && echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ${ANDROID_SDK_ROOT}/licenses/android-sdk-license \
-#  && echo "84831b9409646a918e30573bab4c9c91346d8abd" > ${ANDROID_SDK_ROOT}/licenses/android-sdk-preview-license
 
 ADD packages.txt ${ANDROID_SDK_ROOT}
 
-RUN mkdir -p /root/.android && \
-  touch /root/.android/repositories.cfg && \
-  ${ANDROID_SDK_ROOT}/latest/bin/sdkmanager --update && \
-  (while [ 1 ]; do sleep 5; echo y; done) | \
-  ${ANDROID_SDK_ROOT}/latest/bin/sdkmanager --package_file=\
-${ANDROID_SDK_ROOT}/packages.txt
+RUN mkdir -p /root/.android \
+  && sdkmanager --update \
+  && yes | sdkmanager --package_file=${ANDROID_SDK_ROOT}/packages.txt \
+  && yes | sdkmanager --licenses \
+  && touch /root/.android/repositories.cfg 
 
 # RUN chmod -R a+rwx ${ANDROID_SDK_ROOT}
 
